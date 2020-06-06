@@ -11,7 +11,7 @@ const {
 
 // Launch Type
 const LaunchType = new GraphQLObjectType({
-  name: "Launghc",
+  name: "Launch",
   fields: () => ({
     flight_number: { type: GraphQLInt },
     mission_name: { type: GraphQLString },
