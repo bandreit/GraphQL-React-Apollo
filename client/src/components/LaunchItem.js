@@ -24,8 +24,7 @@ const LaunchItem = ({
             </span>
           </h4>
           <p>
-            Date:{" "}
-            <Moment format="YYYY-MM-DD HH:mmn">{launch_date_local}</Moment>
+            Date: <Moment format="YYYY-MM-DD HH:mm">{launch_date_local}</Moment>
           </p>
         </div>
         <div className="col-md-3 my-auto">

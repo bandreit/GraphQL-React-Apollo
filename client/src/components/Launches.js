@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { gql } from "apollo-boost";
 import { useQuery } from "@apollo/react-hooks";
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
+import moment from "moment/min/moment-with-locales";
 import Loader from "react-loader-spinner";
 import {
   motion,
@@ -28,6 +29,8 @@ const Launches = () => {
   const { scrollYProgress } = useViewportScroll();
   const yRange = useTransform(scrollYProgress, [0, 0.9], [0, 1]);
   const pathLength = useSpring(yRange, { stiffness: 400, damping: 90 });
+  const [futureSort, setFutureSort] = useState(false);
+  const [dateSort, setDateSort] = useState(false);
 
   useEffect(() => yRange.onChange((v) => setIsComplete(v >= 1)), [yRange]);
 
@@ -58,7 +61,29 @@ const Launches = () => {
       </div>
     );
 
-  console.log(data);
+  const compare = (a, b) => {
+    const dateA = a.launch_date_local;
+    const dateB = b.launch_date_local;
+
+    let comparison = 0;
+    if (dateA > dateB) {
+      comparison = dateSort ? 1 : -1;
+    } else if (dateA < dateB) {
+      comparison = dateSort ? -1 : 1;
+    }
+    return comparison;
+  };
+
+  const inTheFuture = (value) => {
+    return futureSort
+      ? true
+      : !moment(value.launch_date_local).isAfter(moment());
+  };
+
+  const launches = data.launches
+    .filter(inTheFuture)
+    .sort(compare)
+    .map((launch) => <LaunchItem key={launch.flight_number} launch={launch} />);
 
   return (
     <>
@@ -89,10 +114,40 @@ const Launches = () => {
       </svg>
       <div>
         <h1 className="display-4 my-3">Launches</h1>
-        <MissionKey />
-        {data.launches.map((launch) => (
-          <LaunchItem key={launch.flight_number} launch={launch} />
-        ))}
+        <div className="row">
+          <div className="col-md-5">
+            <MissionKey />
+          </div>
+          <div className="col-md-5 offset-md-2 my-auto">
+            <div className="row d-flex justify-content-end align-items-center">
+              <div className="col-md-5 custom-control custom-switch d-flex justify-content-center my-2">
+                <input
+                  type="checkbox"
+                  checked={futureSort}
+                  className="custom-control-input"
+                  onChange={(e) => {
+                    setFutureSort(!futureSort);
+                  }}
+                  id="switch1"
+                />
+                <label className="custom-control-label" htmlFor="switch1">
+                  Show Future Launches
+                </label>
+              </div>
+              <div className="col-md-5 form-group mb-2">
+                <select
+                  className="form-control"
+                  id="exampleFormControlSelect1"
+                  onChange={(e) => setDateSort(!dateSort)}
+                >
+                  <option>Newest</option>
+                  <option>Oldest</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        {launches}
       </div>
     </>
   );
