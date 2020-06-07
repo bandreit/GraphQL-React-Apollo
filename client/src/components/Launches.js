@@ -3,6 +3,7 @@ import { gql } from "apollo-boost";
 import { useQuery } from "@apollo/react-hooks";
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 import Loader from "react-loader-spinner";
+import moment from "moment/min/moment-with-locales";
 import {
   motion,
   useViewportScroll,
@@ -28,6 +29,7 @@ const Launches = () => {
   const { scrollYProgress } = useViewportScroll();
   const yRange = useTransform(scrollYProgress, [0, 0.9], [0, 1]);
   const pathLength = useSpring(yRange, { stiffness: 400, damping: 90 });
+  const [futureSort, setFutureSort] = useState(true);
 
   useEffect(() => yRange.onChange((v) => setIsComplete(v >= 1)), [yRange]);
 
@@ -58,7 +60,22 @@ const Launches = () => {
       </div>
     );
 
-  console.log(data);
+  const compare = (a, b) => {
+    const dateA = a.launch_date_local;
+    const dateB = b.launch_date_local;
+
+    let comparison = 0;
+    if (dateA > dateB) {
+      comparison = -1;
+    } else if (dateA < dateB) {
+      comparison = 1;
+    }
+    return comparison;
+  };
+
+  const inTheFuture = (value) => {
+    return !moment(value.launch_date_local).isAfter(moment());
+  };
 
   return (
     <>
@@ -89,10 +106,40 @@ const Launches = () => {
       </svg>
       <div>
         <h1 className="display-4 my-3">Launches</h1>
-        <MissionKey />
-        {data.launches.map((launch) => (
-          <LaunchItem key={launch.flight_number} launch={launch} />
-        ))}
+        <div className="row">
+          <div className="col-md-5">
+            <MissionKey />
+          </div>
+          <div className="col-md-5 m-auto">
+            <div className="custom-control custom-switch">
+              <input
+                type="checkbox"
+                checked={futureSort}
+                className="custom-control-input"
+                onChange={(e) => {
+                  setFutureSort(!futureSort);
+                }}
+                id="switch1"
+              />
+              <label className="custom-control-label" htmlFor="switch1">
+                Show Future Launches
+              </label>
+            </div>
+          </div>
+        </div>
+
+        {futureSort
+          ? data.launches
+              .filter(inTheFuture)
+              .sort(compare)
+              .map((launch) => (
+                <LaunchItem key={launch.flight_number} launch={launch} />
+              ))
+          : data.launches
+              .sort(compare)
+              .map((launch) => (
+                <LaunchItem key={launch.flight_number} launch={launch} />
+              ))}
       </div>
     </>
   );
