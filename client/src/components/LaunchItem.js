@@ -13,7 +13,7 @@ const LaunchItem = ({
       <div className="row">
         <div className="col-md-9">
           <h4>
-            Mission:{" "}
+            Mission:
             <span
               className={className({
                 "text-success": launch_success,
