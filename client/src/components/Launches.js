@@ -29,7 +29,7 @@ const Launches = () => {
   const { scrollYProgress } = useViewportScroll();
   const yRange = useTransform(scrollYProgress, [0, 0.9], [0, 1]);
   const pathLength = useSpring(yRange, { stiffness: 400, damping: 90 });
-  const [futureSort, setFutureSort] = useState(true);
+  const [futureSort, setFutureSort] = useState(false);
 
   useEffect(() => yRange.onChange((v) => setIsComplete(v >= 1)), [yRange]);
 
@@ -74,8 +74,15 @@ const Launches = () => {
   };
 
   const inTheFuture = (value) => {
-    return !moment(value.launch_date_local).isAfter(moment());
+    return futureSort
+      ? true
+      : !moment(value.launch_date_local).isAfter(moment());
   };
+
+  const launches = data.launches
+    .filter(inTheFuture)
+    .sort(compare)
+    .map((launch) => <LaunchItem key={launch.flight_number} launch={launch} />);
 
   return (
     <>
@@ -127,19 +134,7 @@ const Launches = () => {
             </div>
           </div>
         </div>
-
-        {futureSort
-          ? data.launches
-              .filter(inTheFuture)
-              .sort(compare)
-              .map((launch) => (
-                <LaunchItem key={launch.flight_number} launch={launch} />
-              ))
-          : data.launches
-              .sort(compare)
-              .map((launch) => (
-                <LaunchItem key={launch.flight_number} launch={launch} />
-              ))}
+        {launches}
       </div>
     </>
   );

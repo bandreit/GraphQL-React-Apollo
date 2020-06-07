@@ -9,7 +9,15 @@ const LaunchItem = ({
   launch: { flight_number, mission_name, launch_date_local, launch_success },
 }) => {
   return (
-    <div className="card card-body mb-3">
+    <div
+      className="card card-body mb-3"
+      style={{
+        backgroundImage: `url(https://images.unsplash.com/photo-1465101162946-4377e57745c3?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1957&q=80)`,
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
       <div className="row">
         <div className="col-md-9">
           <h4>
@@ -24,8 +32,7 @@ const LaunchItem = ({
             </span>
           </h4>
           <p>
-            Date:{" "}
-            <Moment format="YYYY-MM-DD HH:mmn">{launch_date_local}</Moment>
+            Date: <Moment format="YYYY-MM-DD HH:mm">{launch_date_local}</Moment>
           </p>
         </div>
         <div className="col-md-3 my-auto">
